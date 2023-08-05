@@ -1,15 +1,39 @@
 from torch import optim, utils
 import torch
-from hiera import mae_hiera_tiny_224
 from hiera.hiera_mae import MaskedAutoencoderHiera
 import torchvision
 from utils import FolderDataset
-
+import wandb
+import logging
+from tqdm import tqdm
+import argparse
 
 path = "/home/yandex/MLFH2023/giladd/hiera/datasets/**/"
 
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+def main(args):
+    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    model: MaskedAutoencoderHiera = torch.hub.load(
+        "facebookresearch/hiera",
+        model="mae_hiera_tiny_224",
+        pretrained=True,
+        checkpoint="mae_in1k",
+    )
 
-def main(model: MaskedAutoencoderHiera):
+    wandb.login()
+    run = wandb.init(
+        name="med-hiera_1",
+        # Set the project where this run will be logged
+        project="med-hiera",
+        # Track hyperparameters and run metadata
+        config={
+            "learning_rate": args.learning_rate,
+        },
+    )
+    wandb.log_artifact(model, type="model")
+
     dataset = FolderDataset(
         path=path,
         transform=torchvision.transforms.Compose(
@@ -20,23 +44,28 @@ def main(model: MaskedAutoencoderHiera):
             ]
         ),
     )
+    logging.info(f"Dataset size: {len(dataset)}")
     dataloader = utils.data.DataLoader(
-        dataset, batch_size=32, shuffle=True, num_workers=0
+        dataset, batch_size=32, shuffle=True, num_workers=4
     )
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     model.train()
-    
-    for batch in dataloader:
+
+    for batch in tqdm(dataloader):
         loss = model.forward(batch)[0]
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
+        wandb.log({"loss": loss})
+
 
     model.eval()
 
 
 if __name__ == "__main__":
-    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
-    model: MaskedAutoencoderHiera = torch.hub.load("facebookresearch/hiera", model="mae_hiera_tiny_224", pretrained=True, checkpoint="mae_in1k")
-    main(model)
+    parser = argparse.ArgumentParser(description="Train a model with a customizable learning rate.")
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for model training')
+    
+    args = parser.parse_args()
+    main(args)
