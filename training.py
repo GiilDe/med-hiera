@@ -30,9 +30,7 @@ def main(model: MaskedAutoencoderHiera):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        i += 1
-        if i == 10:
-            break
+        
 
     model.eval()
 
