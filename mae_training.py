@@ -1,4 +1,5 @@
 from torch import optim, utils
+import torch
 from hiera import mae_hiera_tiny_224
 from hiera.hiera_mae import MaskedAutoencoderHiera
 import torchvision
@@ -36,5 +37,6 @@ def main(model: MaskedAutoencoderHiera):
 
 
 if __name__ == "__main__":
-    model: MaskedAutoencoderHiera = mae_hiera_tiny_224()
+    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    model: MaskedAutoencoderHiera = torch.hub.load("facebookresearch/hiera", model="mae_hiera_tiny_224", pretrained=True, checkpoint="mae_in1k")
     main(model)
