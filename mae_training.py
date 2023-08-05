@@ -24,7 +24,7 @@ def main(model: MaskedAutoencoderHiera):
     )
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     model.train()
-    i = 0
+    
     for batch in dataloader:
         loss = model.forward(batch)[0]
         optimizer.zero_grad()
