@@ -13,8 +13,10 @@ path = "/home/yandex/MLFH2023/giladd/hiera/datasets/**/"
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+
+
 def main(args):
-    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    torch.hub.set_dir("/home/yandex/MLFH2023/eranlevin/hiera/")
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
         model="mae_hiera_tiny_224",
@@ -32,6 +34,8 @@ def main(args):
             "learning_rate": args.learning_rate,
         },
     )
+
+    #    wandb.log_artifact(model, type="model")
 
     dataset = FolderDataset(
         path=path,
@@ -58,16 +62,12 @@ def main(args):
 
         wandb.log({"loss": loss})
 
-
     model.eval()
-    if args.save_model:
-        torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model with a customizable learning rate.")
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for model training')
-    parser.add_argument('--save_model', type=bool, default=False)
 
     args = parser.parse_args()
     main(args)
