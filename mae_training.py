@@ -32,7 +32,6 @@ def main(args):
             "learning_rate": args.learning_rate,
         },
     )
-    wandb.log_artifact(model, type="model")
 
     dataset = FolderDataset(
         path=path,
