@@ -24,6 +24,9 @@ def main(args):
         checkpoint="mae_in1k",
     )
 
+    device = torch.device("cuda")
+    model = model.to(device)
+
     wandb.login()
     run = wandb.init(
         name="med-hiera_1",
