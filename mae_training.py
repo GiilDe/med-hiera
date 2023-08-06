@@ -65,7 +65,7 @@ def main(args):
     warmup_epochs = 1
     warmup_iters = warmup_epochs * num_batches
     warmup_factor = 0.01
-    warmup_lr_scheduler = LinearLR(optimizer, start_factor=e-6, end_factor=warmup_factor, total_iters=warmup_iters)
+    warmup_lr_scheduler = LinearLR(optimizer, start_factor=1e-6, end_factor=warmup_factor, total_iters=warmup_iters)
 
     # Create a CosineAnnealingLR for cosine decay
     cosine_decay_epochs = total_epochs - warmup_epochs
