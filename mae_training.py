@@ -72,7 +72,7 @@ def main(args):
     cosine_decay_lr_scheduler = CosineAnnealingLR(optimizer, T_max=cosine_decay_epochs * num_batches)
 
     # Combine both schedulers using SequentialLR
-    scheduler = SequentialLR(optimizer, [warmup_lr_scheduler, cosine_decay_lr_scheduler])
+    scheduler = SequentialLR(optimizer, [warmup_lr_scheduler, cosine_decay_lr_scheduler],milestones=[warmup_iters])
 
     for epoch in range(40):
         for batch in tqdm(dataloader):
