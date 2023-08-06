@@ -59,6 +59,7 @@ def main(args):
 
     for epoch in range(40):
         for batch in tqdm(dataloader):
+            batch = batch.to(device)
             loss = model.forward(batch)[0]
             optimizer.zero_grad()
             loss.backward()
