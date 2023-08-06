@@ -61,11 +61,14 @@ def main(args):
 
 
     model.eval()
+    if args.save_model:
+        torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a model with a customizable learning rate.")
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for model training')
-    
+    parser.add_argument('--save_model', type=bool, default=False)
+
     args = parser.parse_args()
     main(args)
