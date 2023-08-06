@@ -7,7 +7,7 @@ import wandb
 import logging
 from tqdm import tqdm
 import argparse
-from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR ,SequentialLR
 
 path = "/home/yandex/MLFH2023/giladd/hiera/datasets/**/"
 
