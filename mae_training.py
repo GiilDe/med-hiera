@@ -62,7 +62,7 @@ def main(args):
     total_iters = total_epochs * num_batches
 
     # Create a LinearLR for linear warm-up
-    warmup_epochs = 5
+    warmup_epochs = 1
     warmup_iters = warmup_epochs * num_batches
     warmup_factor = 0.01
     warmup_lr_scheduler = LinearLR(optimizer, start_factor=0.0, end_factor=warmup_factor, total_iters=warmup_iters)
