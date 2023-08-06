@@ -49,15 +49,13 @@ def main(args):
     )
     logging.info(f"Dataset size: {len(dataset)}")
     dataloader = utils.data.DataLoader(
-        dataset, batch_size=32, shuffle=True, num_workers=4
+        dataset, batch_size=128, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, T_max=10, eta_min=1e-5, last_epoch=-1
-    )
+    scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=10, max_epochs=40)
     model.train()
 
-    for epoch in range(10):
+    for epoch in range(40):
         for batch in tqdm(dataloader):
             loss = model.forward(batch)[0]
             optimizer.zero_grad()
