@@ -52,7 +52,7 @@ def main(args):
         dataset, batch_size=128, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    torch.optim.lr_scheduler.LinearLR(optimizer)
+    scheduler=torch.optim.lr_scheduler.LinearLR(optimizer)
 
     for epoch in range(40):
         for batch in tqdm(dataloader):
