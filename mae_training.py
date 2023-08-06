@@ -7,6 +7,7 @@ import wandb
 import logging
 from tqdm import tqdm
 import argparse
+from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR
 
 path = "/home/yandex/MLFH2023/giladd/hiera/datasets/**/"
 
@@ -55,7 +56,23 @@ def main(args):
         dataset, batch_size=64, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    scheduler=torch.optim.lr_scheduler.LinearLR(optimizer,total_iters=40*len(dataloader))
+    # Assuming you have already defined your optimizer and dataloader
+    total_epochs = 40
+    num_batches = len(dataloader)
+    total_iters = total_epochs * num_batches
+
+    # Create a LinearLR for linear warm-up
+    warmup_epochs = 5
+    warmup_iters = warmup_epochs * num_batches
+    warmup_factor = 0.01
+    warmup_lr_scheduler = LinearLR(optimizer, start_factor=0.0, end_factor=warmup_factor, total_iters=warmup_iters)
+
+    # Create a CosineAnnealingLR for cosine decay
+    cosine_decay_epochs = total_epochs - warmup_epochs
+    cosine_decay_lr_scheduler = CosineAnnealingLR(optimizer, T_max=cosine_decay_epochs * num_batches)
+
+    # Combine both schedulers using SequentialLR
+    scheduler = SequentialLR(optimizer, [warmup_lr_scheduler, cosine_decay_lr_scheduler])
 
     for epoch in range(40):
         for batch in tqdm(dataloader):
