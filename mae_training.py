@@ -65,7 +65,7 @@ def main(args):
             optimizer.step()
             scheduler.step()
 
-            wandb.log({"loss": loss, "learning_rate": scheduler.get_lr()[0]})
+            wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
 
     model.eval()
 
