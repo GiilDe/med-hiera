@@ -49,25 +49,22 @@ def main(args):
     )
     logging.info(f"Dataset size: {len(dataset)}")
     dataloader = utils.data.DataLoader(
-        dataset, batch_size=32, shuffle=True, num_workers=4
+        dataset, batch_size=128, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=10, eta_min=1e-5, last_epoch=-1
+    )
     model.train()
 
-    for batch in tqdm(dataloader):
-        loss = model.forward(batch)[0]
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    for epoch in range(10):
+        for batch in tqdm(dataloader):
+            loss = model.forward(batch)[0]
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            scheduler.step()
 
-        wandb.log({"loss": loss})
+            wandb.log({"loss": loss, "learning_rate": scheduler.get_lr()[0]})
 
     model.eval()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train a model with a customizable learning rate.")
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for model training')
-
-    args = parser.parse_args()
-    main(args)
