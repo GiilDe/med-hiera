@@ -29,3 +29,6 @@ wandb/
 facebookresearch_hiera_main/
 awesome.err
 awesome.out
+med-mae_hiera_tiny_224.pth
+run_classification.slurm
+run_mae.slurm
