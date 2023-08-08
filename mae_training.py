@@ -59,20 +59,10 @@ def main(args):
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
     num_batches = len(dataloader)
-    total_iters = total_epochs * num_batches
 
-    # Create a LinearLR for linear warm-up
-    warmup_epochs = 1
-    warmup_iters = warmup_epochs * num_batches
-    warmup_factor = 0.01
-    warmup_lr_scheduler = LinearLR(optimizer, start_factor=1e-6, end_factor=warmup_factor, total_iters=warmup_iters)
-
-    # Create a CosineAnnealingLR for cosine decay
-    cosine_decay_epochs = total_epochs - warmup_epochs
-    cosine_decay_lr_scheduler = CosineAnnealingLR(optimizer, T_max=cosine_decay_epochs * num_batches)
 
     # Combine both schedulers using SequentialLR
-    scheduler = SequentialLR(optimizer, [warmup_lr_scheduler, cosine_decay_lr_scheduler],milestones=[warmup_iters])
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, steps_per_epoch=num_batches, epochs=total_epochs)
 
     for epoch in range(40):
         for batch in tqdm(dataloader):
