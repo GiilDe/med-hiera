@@ -45,23 +45,9 @@ def main(args):
 
     dataset_train = FolderDataset(
         paths=train_paths,
-        transform=torchvision.transforms.Compose(
-            [
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Resize((224, 224)),
-                torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            ]
-        ),
     )
     dataset_test = FolderDataset(
         paths=test_paths,
-        transform=torchvision.transforms.Compose(
-            [
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Resize((224, 224)),
-                torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-            ]
-        ),
     )
     logging.info(f"Train dataset size: {len(dataset_train)}")
     logging.info(f"Test dataset size: {len(dataset_test)}")
