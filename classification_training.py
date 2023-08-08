@@ -17,7 +17,9 @@ logging.basicConfig(
 )
 def main(args):
     model: Hiera = hiera_tiny_224(pretrained=False, checkpoint="hiera_in1k", num_classes=15)
-    model.load_state_dict(torch.load("med-mae_hiera_tiny_224.pth"), strict=False)
+    # strict=False because the .pth includes the decoder params which we don't need for classification.
+    # Plus, the .pth file lacks some params that are needed in the model
+    model.load_state_dict(torch.load("med-mae_hiera_tiny_224.pth"), strict=False) 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     if args.log_wandb:
