@@ -20,20 +20,12 @@ logging.basicConfig(
 
 def main(args):
     model: Hiera = hiera_tiny_224(
-        pretrained=True, checkpoint="hiera_in1k", num_classes=15
+        pretrained=False, checkpoint="hiera_in1k", num_classes=15
     )
     # strict=False because the .pth includes the decoder params which we don't need for classification.
     # Plus, the .pth file lacks some params that are needed in the model
-    # model.load_state_dict(torch.load("med-mae_hiera_tiny_224.pth"), strict=False)
+    model.load_state_dict(torch.load("med-mae_hiera_tiny_224.pth"), strict=False)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
-    model: Hiera = torch.hub.load(
-        "facebookresearch/hiera",
-        model="hiera_tiny_224",
-        pretrained=True,
-        checkpoint="mae_in1k_ft_in1k",
-    )
 
     if args.log_wandb:
         wandb.login()
