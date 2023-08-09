@@ -49,17 +49,17 @@ def main(args):
     dataset_train = FolderDataset(
         paths=train_paths,
     )
-    dataset_test = FolderDataset(
-        paths=test_paths,
-    )
+    # dataset_test = FolderDataset(
+    #     paths=test_paths,
+    # )
     logging.info(f"Train dataset size: {len(dataset_train)}")
-    logging.info(f"Test dataset size: {len(dataset_test)}")
+    # logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_train = DataLoader(
         dataset_train, batch_size=32, shuffle=True, num_workers=4
     )
-    dataloader_test = DataLoader(
-        dataset_test, batch_size=64, shuffle=True, num_workers=4
-    )
+    # dataloader_test = DataLoader(
+    #     dataset_test, batch_size=64, shuffle=True, num_workers=4
+    # )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
