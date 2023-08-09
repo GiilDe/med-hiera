@@ -63,7 +63,7 @@ def main(args):
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
-    num_batches = len(dataloader)
+    num_batches = len(dataloader_train)
 
 
     # Combine both schedulers using SequentialLR
