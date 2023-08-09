@@ -15,9 +15,9 @@ train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
 ]
 
-test_paths = [
-    "datasets/datasets_classification_processed/checxpert_data/test/",
-]
+# test_paths = [
+#     "datasets/datasets_classification_processed/checxpert_data/test/",
+# ]
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         help="Learning rate for model training",
     )
     parser.add_argument("--save_model", type=bool, default=False)
-    parser.add_argument("--log_wandb", type=bool, default=False)
+    parser.add_argument("--log_wandb", type=bool, default=True)
 
     args = parser.parse_args()
     main(args)
