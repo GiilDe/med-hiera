@@ -70,7 +70,7 @@ def main(args):
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, steps_per_epoch=num_batches, epochs=total_epochs)
 
     for epoch in range(40):
-        for batch in tqdm(dataloader):
+        for batch in tqdm(dataloader_train):
             batch = batch.to(device)
             loss = model.forward(batch)[0]
             optimizer.zero_grad()
@@ -82,13 +82,13 @@ def main(args):
 
     model.eval()
     loss_avg = torch.zeros(1)
-    for batch in tqdm(dataloader_test):
-        loss = model.forward(batch)[0]
-        loss_avg += loss
+    # for batch in tqdm(dataloader_test):
+    #     loss = model.forward(batch)[0]
+    #     loss_avg += loss
 
-    loss_avg /= len(dataloader_test)
-    if args.log_wandb:
-        wandb.log({"evaluation_avg_loss": loss_avg})
+    # loss_avg /= len(dataloader_test)
+    # if args.log_wandb:
+    #     wandb.log({"evaluation_avg_loss": loss_avg})
 
     logging.info(f"Average loss: {loss_avg}")
     if args.save_model:
