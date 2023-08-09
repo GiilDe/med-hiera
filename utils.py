@@ -1,22 +1,59 @@
 from random import shuffle
+from typing import Optional
+import numpy as np
+import torch
 from torchvision.datasets import VisionDataset
 import PIL.Image
 import os
 from glob import glob
-
-
-class RepeatChannel:
-    def __init__(self):
-        self.n_channels = 3
-
-    def __call__(self, X):
-        if X.shape[0] == 1:
-            X = X.repeat(self.n_channels, 1, 1)
-        return X
+import pandas as pd
+from torchvision import transforms
+from torchvision.transforms.functional import InterpolationMode
 
 
 class FolderDataset(VisionDataset):
-    def __init__(self, path="data", transform=None):
+    labels = None
+    input_size = 224
+    default_transform = transforms.Compose(
+        [
+            transforms.Resize(
+                int((256 / 224) * input_size), interpolation=InterpolationMode.BICUBIC
+            ),
+            transforms.CenterCrop(input_size),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ]
+    )
+
+    # default_transform = torchvision.transforms.Compose(
+    #     [
+    #         torchvision.transforms.ToTensor(),
+    #         torchvision.transforms.Resize((224, 224)),
+    #         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    #     ]
+    # )
+
+    @staticmethod
+    def process_labels(labels_path):
+        if FolderDataset.labels is None:
+            FolderDataset.labels = pd.read_csv(labels_path)[
+                ["Image Index", "Finding Labels"]
+            ]
+            FolderDataset.labels["Finding Labels"] = pd.DataFrame.apply(
+                FolderDataset.labels[["Finding Labels"]],
+                lambda row: row["Finding Labels"].split("|"),
+                axis=1,
+            )
+            FolderDataset.labels = FolderDataset.labels.explode("Finding Labels")
+            FolderDataset.labels = pd.get_dummies(
+                FolderDataset.labels, columns=["Finding Labels"]
+            )
+            FolderDataset.labels = FolderDataset.labels.groupby(
+                by=["Image Index"]
+            ).any()
+            FolderDataset.labels = FolderDataset.labels.to_dict("index")
+
+    def __init__(self, paths, transform=default_transform, labels_path=None):
         """
         Initialize data set as a list of IDs corresponding to each item of data set
 
@@ -24,11 +61,17 @@ class FolderDataset(VisionDataset):
         :param txt_path: a text file containing names of all of images line by line
         :param transform: apply some transforms like cropping, rotating, etc on input image
         """
-        self.img_paths = [
-            path
-            for path in glob(path + "*.jpg", recursive=True)
-            + glob(path + "*.png", recursive=True)
-        ]
+        if not isinstance(paths, list):
+            paths = [paths]
+        self.img_paths = []
+        for path in paths:
+            self.img_paths += list(glob(path + "*.jpg", recursive=True)) + list(
+                glob(path + "*.png", recursive=True)
+            )
+        self.labels = None
+        if labels_path is not None:
+            FolderDataset.process_labels(labels_path)
+
         shuffle(self.img_paths)
         self.transform = transform
 
@@ -58,7 +101,14 @@ class FolderDataset(VisionDataset):
 
         :return: a sample of data as a dict
         """
-        X = self.get_image_from_folder(self.img_paths[index])
+        img_path = self.img_paths[index]
+        img_name = os.path.basename(img_path)
+        X = self.get_image_from_folder(img_path)
         X = X.convert("RGB")
         X = self.transform(X)
+        if FolderDataset.labels is not None:
+            labels = list(FolderDataset.labels[img_name].values())
+            label_torch = torch.zeros(size=(len(labels),))
+            label_torch[labels] = 1
+            return (X, label_torch)
         return X
