@@ -73,6 +73,7 @@ def main(args):
         accumulated_loss = 0.0  # Initialize accumulated loss for this epoch
 
         for batch_idx, batch in enumerate(tqdm(dataloader_train)):
+            print(batch_idx)
             batch = batch.to(device)
             loss = model.forward(batch)[0]
 
