@@ -78,8 +78,9 @@ def main(args):
             loss = model.forward(batch)[0]
 
             # Accumulate the loss
-            accumulated_loss += loss.item()
-
+            accumulated_loss += loss
+            del loss
+            del batch
             if (batch_idx + 1) % ACCUMULATE_STEP == 0:
                 # Backpropagate and update only after accumulating gradients for a certain number of minibatches
                 accumulated_loss /= ACCUMULATE_STEP
