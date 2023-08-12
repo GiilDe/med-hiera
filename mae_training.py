@@ -76,7 +76,6 @@ def main(args):
             loss/=ACCUMULATION_STEPS
             loss.backward()
             if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (batch_idx + 1 == len(dataloader_train)):
-                optimizer.zero_grad()
                 optimizer.step()
                 scheduler.step()
                 if args.log_wandb:
