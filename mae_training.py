@@ -55,7 +55,7 @@ def main(args):
     logging.info(f"Train dataset size: {len(dataset_train)}")
     # logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_train = DataLoader(
-        dataset_train, batch_size=16, shuffle=True, num_workers=4
+        dataset_train, batch_size=32, shuffle=True, num_workers=4
     )
     # dataloader_test = DataLoader(
     #     dataset_test, batch_size=64, shuffle=True, num_workers=4
@@ -68,7 +68,7 @@ def main(args):
 
     # Combine both schedulers using SequentialLR
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, steps_per_epoch=num_batches, epochs=total_epochs)
-    ACCUMULATE_STEP = 16
+    ACCUMULATE_STEP = 4
     for epoch in range(40):
         accumulated_loss = 0.0  # Initialize accumulated loss for this epoch
 
@@ -102,6 +102,10 @@ def main(args):
 
             if args.log_wandb:
                 wandb.log({"loss": accumulated_loss, "learning_rate": scheduler.get_last_lr()[0]})
+        #free batch
+        del batch
+        torch.cuda.empty_cache()
+
 
     model.eval()
     loss_avg = torch.zeros(1)
