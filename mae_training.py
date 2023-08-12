@@ -75,7 +75,7 @@ def main(args):
             loss = model.forward(batch)[0]
             loss/=ACCUMULATION_STEPS
             loss.backward()
-            if ((batch_idx + 1) % accum_iter == 0) or (batch_idx + 1 == len(data_loader)):
+            if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (batch_idx + 1 == len(data_loader)):
                 optimizer.zero_grad()
                 optimizer.step()
                 scheduler.step()
