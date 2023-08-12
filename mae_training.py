@@ -11,9 +11,8 @@ import argparse
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR ,SequentialLR
 
 train_paths = [
-    "/home/yandex/MLFH2023/giladd/datasets/datasets_classification_processed/checxpert_data/train/",
-    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/"
-
+    "datasets/datasets_classification_processed/checxpert_data/train/",
+    "datasets/datasets_mae/**/"
 ]
 
 # test_paths = [
@@ -26,7 +25,7 @@ logging.basicConfig(
 
 
 def main(args):
-    torch.hub.set_dir("/home/yandex/MLFH2023/eranlevin/hiera/")
+    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
         model="mae_hiera_tiny_224",
