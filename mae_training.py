@@ -63,12 +63,12 @@ def main(args):
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
-    num_batches = len(dataloader_train)
+    ACCUMULATION_STEPS=4
+    num_batches = len(dataloader_train)/ACCUMULATION_STEPS
 
 
     # Combine both schedulers using SequentialLR
     scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, steps_per_epoch=num_batches, epochs=total_epochs)
-    ACCUMULATION_STEPS=4
     for epoch in range(40):
         for batch_idx,batch in enumerate(tqdm(dataloader_train)):
             batch = batch.to(device)
