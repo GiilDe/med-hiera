@@ -11,8 +11,8 @@ import argparse
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR ,SequentialLR
 
 train_paths = [
-    "datasets/datasets_classification_processed/checxpert_data/train/",
-    "datasets/datasets_mae/**/"
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/"
 ]
 
 # test_paths = [
