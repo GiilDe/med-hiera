@@ -65,7 +65,7 @@ def main(args):
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
     ACCUMULATION_STEPS=4
-    num_batches = len(dataloader_train)/ACCUMULATION_STEPS
+    num_batches = int(len(dataloader_train)/ACCUMULATION_STEPS)
 
 
     # Combine both schedulers using SequentialLR
