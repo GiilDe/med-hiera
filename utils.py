@@ -13,6 +13,7 @@ from torchvision.transforms.functional import InterpolationMode
 
 class FolderDataset(VisionDataset):
     labels = None
+    original_size = (600, 450) # size of the example image in the hiera repo
     input_size = 224
     default_transform = transforms.Compose(
         [
@@ -105,6 +106,7 @@ class FolderDataset(VisionDataset):
         img_name = os.path.basename(img_path)
         X = self.get_image_from_folder(img_path)
         X = X.convert("RGB")
+        X = X.resize(size=FolderDataset.original_size)
         X = self.transform(X)
         if FolderDataset.labels is not None:
             labels = list(FolderDataset.labels[img_name].values())

@@ -73,7 +73,7 @@ def main(args):
         steps_per_epoch=num_batches,
         epochs=total_epochs,
     )
-    for epoch in range(40):
+    for epoch in range(total_epochs):
         for batch_idx, batch in enumerate(tqdm(dataloader_train)):
             batch = batch.to(device)
             loss = model.forward(batch)[0]
