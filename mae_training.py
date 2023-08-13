@@ -8,16 +8,16 @@ import wandb
 import logging
 from tqdm import tqdm
 import argparse
-from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR ,SequentialLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 
 train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
-    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/"
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
 ]
 
-# test_paths = [
-#     "datasets/datasets_classification_processed/checxpert_data/test/",
-# ]
+test_paths = [
+    "datasets/datasets_classification_processed/checxpert_data/test/",
+]
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -32,7 +32,7 @@ def main(args):
         pretrained=True,
         checkpoint="mae_in1k",
     )
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     model = model.to(device)
     if args.log_wandb:
         wandb.login()
@@ -49,49 +49,56 @@ def main(args):
     dataset_train = FolderDataset(
         paths=train_paths,
     )
-    # dataset_test = FolderDataset(
-    #     paths=test_paths,
-    # )
+    dataset_test = FolderDataset(
+        paths=test_paths,
+    )
     logging.info(f"Train dataset size: {len(dataset_train)}")
-    # logging.info(f"Test dataset size: {len(dataset_test)}")
+    logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_train = DataLoader(
         dataset_train, batch_size=32, shuffle=True, num_workers=4
     )
-    # dataloader_test = DataLoader(
-    #     dataset_test, batch_size=64, shuffle=True, num_workers=4
-    # )
+    dataloader_test = DataLoader(
+        dataset_test, batch_size=32, shuffle=True, num_workers=4
+    )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
     total_epochs = 40
-    ACCUMULATION_STEPS=4
-    num_batches = int(len(dataloader_train)/ACCUMULATION_STEPS)
-
+    ACCUMULATION_STEPS = 1
+    num_batches = int(len(dataloader_train) / ACCUMULATION_STEPS)
 
     # Combine both schedulers using SequentialLR
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, steps_per_epoch=num_batches, epochs=total_epochs)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=args.learning_rate,
+        steps_per_epoch=num_batches,
+        epochs=total_epochs,
+    )
     for epoch in range(40):
-        for batch_idx,batch in enumerate(tqdm(dataloader_train)):
+        for batch_idx, batch in enumerate(tqdm(dataloader_train)):
             batch = batch.to(device)
             loss = model.forward(batch)[0]
-            loss/=ACCUMULATION_STEPS
+            loss /= ACCUMULATION_STEPS
             loss.backward()
             if args.log_wandb:
                 wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
 
-            if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (batch_idx + 1 == len(dataloader_train)):
+            if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
+                batch_idx + 1 == len(dataloader_train)
+            ):
                 optimizer.step()
                 scheduler.step()
                 optimizer.zero_grad()
 
     model.eval()
-    loss_avg = torch.zeros(1)
-    # for batch in tqdm(dataloader_test):
-    #     loss = model.forward(batch)[0]
-    #     loss_avg += loss
+    loss_avg = torch.zeros(1).to(device)
+    for batch in tqdm(dataloader_test):
+        batch = batch.to(device)
+        loss = model.forward(batch)[0]
+        loss_avg += loss
 
-    # loss_avg /= len(dataloader_test)
-    # if args.log_wandb:
-    #     wandb.log({"evaluation_avg_loss": loss_avg})
+    loss_avg /= len(dataloader_test)
+    if args.log_wandb:
+        wandb.log({"evaluation_avg_loss": loss_avg})
 
     logging.info(f"Average loss: {loss_avg}")
     if args.save_model:
