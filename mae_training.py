@@ -16,7 +16,7 @@ train_paths = [
 ]
 
 test_paths = [
-    "datasets/datasets_classification_processed/checxpert_data/test/",
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/test/",
 ]
 
 logging.basicConfig(

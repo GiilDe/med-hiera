@@ -10,8 +10,8 @@ from tqdm import tqdm
 import argparse
 from torch.nn import BCELoss, Sigmoid
 
-train_paths = "datasets/datasets_classification_processed/checxpert_data/train/"
-test_paths = "datasets/datasets_classification_processed/checxpert_data/test/"
+train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
+test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/test/"
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -76,7 +76,7 @@ def main(args):
             wandb.log({"loss": loss})
 
     model.eval()
-    loss_avg = torch.zeros(1)
+    loss_avg = torch.zeros(1).to(device)
     for x, y in tqdm(dataloader_test):
         x = x.to(device)
         y = y.to(device)
