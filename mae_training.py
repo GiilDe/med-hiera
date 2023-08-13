@@ -32,7 +32,7 @@ def main(args):
         pretrained=True,
         checkpoint="mae_in1k",
     )
-    device = torch.device("cpu")
+    device = torch.device("cuda")
     model = model.to(device)
     if args.log_wandb:
         wandb.login()
