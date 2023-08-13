@@ -22,7 +22,7 @@ class FolderDataset(VisionDataset):
             ),
             transforms.CenterCrop(input_size),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
         ]
     )
 
@@ -106,7 +106,7 @@ class FolderDataset(VisionDataset):
         img_name = os.path.basename(img_path)
         X = self.get_image_from_folder(img_path)
         X = X.convert("RGB")
-        X = X.resize(size=FolderDataset.original_size)
+        # X = X.resize(size=FolderDataset.original_size)
         X = self.transform(X)
         if FolderDataset.labels is not None:
             labels = list(FolderDataset.labels[img_name].values())
