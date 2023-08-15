@@ -29,14 +29,6 @@ class FolderDataset(VisionDataset):
         ]
     )
 
-    # default_transform = torchvision.transforms.Compose(
-    #     [
-    #         torchvision.transforms.ToTensor(),
-    #         torchvision.transforms.Resize((224, 224)),
-    #         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-    #     ]
-    # )
-
     @staticmethod
     def process_labels(labels_path):
         if FolderDataset.labels is None:
