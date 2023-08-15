@@ -83,7 +83,9 @@ def main(args):
                 loss /= ACCUMULATION_STEPS
                 loss.backward()
                 if args.log_wandb:
-                    wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+                    wandb.log(
+                        {"loss": loss, "learning_rate": scheduler.get_last_lr()[0]}
+                    )
 
                 if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
                     batch_idx + 1 == len(dataloader_train)

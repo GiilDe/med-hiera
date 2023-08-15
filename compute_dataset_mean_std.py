@@ -27,7 +27,7 @@ if __name__ == "__main__":
         std += data.std(2).sum(0)
         nb_samples += batch_samples
         j += batch_samples
-        if j >= 2000:
+        if j >= 10000:
             break
 
     mean /= nb_samples

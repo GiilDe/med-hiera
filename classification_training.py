@@ -12,6 +12,7 @@ from torch.nn import BCELoss, Sigmoid
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
 test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/test/"
+labels_path = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification/checxpert_data/Data_Entry_2017.csv"
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -38,7 +39,9 @@ def main(args):
     if args.log_wandb:
         wandb.login()
         wandb.init(
-            name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1 classification",
+            name=args.wandb_run_name
+            if args.wandb_run_name
+            else "med-hiera_1 classification",
             # Set the project where this run will be logged
             project="med-hiera",
             # Track hyperparameters and run metadata
@@ -51,19 +54,19 @@ def main(args):
 
     dataset_train = FolderDataset(
         paths=train_paths,
-        labels_path="/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification/checxpert_data/Data_Entry_2017.csv",
+        labels_path=labels_path,
     )
     dataloader_train = DataLoader(
-        dataset_train, batch_size=32, shuffle=True, num_workers=4
+        dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
     dataset_test = FolderDataset(
         paths=test_paths,
-        labels_path="/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification/checxpert_data/Data_Entry_2017.csv",
+        labels_path=labels_path,
     )
     logging.info(f"Train dataset size: {len(dataset_train)}")
     logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_test = DataLoader(
-        dataset_test, batch_size=32, shuffle=True, num_workers=4
+        dataset_test, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
 
     sigmoid = Sigmoid()
@@ -130,6 +133,7 @@ if __name__ == "__main__":
     parser.add_argument("--wandb_run_name", type=str, default="")
     parser.add_argument("--pretrained_path", type=str, default=False)
     parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--batch_size", type=int, default=32)
 
     args = parser.parse_args()
     main(args)

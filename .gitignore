@@ -33,3 +33,4 @@ med-mae_hiera_tiny_224.pth
 run_classification.slurm
 run_mae.slurm
 checkpoints/hiera_tiny_224.pth
+med-mae_hiera_tiny_224_classification.pth
