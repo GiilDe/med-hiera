@@ -37,7 +37,7 @@ def main(args):
     if args.log_wandb:
         wandb.login()
         wandb.init(
-            name="med-hiera_1",
+            name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1",
             # Set the project where this run will be logged
             project="med-hiera",
             # Track hyperparameters and run metadata
@@ -124,6 +124,7 @@ if __name__ == "__main__":
     parser.add_argument("--log_wandb", type=bool, default=True)
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--wandb_run_name", type=str, default="")
 
     args = parser.parse_args()
     main(args)
