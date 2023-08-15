@@ -59,7 +59,7 @@ def main(args):
         dataset_train, batch_size=32, shuffle=True, num_workers=4
     )
     dataloader_test = DataLoader(
-        dataset_test, batch_size=8, shuffle=True, num_workers=4
+        dataset_test, batch_size=32, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
@@ -92,17 +92,18 @@ def main(args):
                     optimizer.zero_grad()
 
             model.eval()
-            loss_avg = torch.zeros(1).to(device)
-            for batch in tqdm(dataloader_test):
-                batch = batch.to(device)
-                loss = model.forward(batch)[0]
-                loss_avg += loss
+            with torch.no_grad():
+                loss_avg = torch.zeros(1).to(device)
+                for batch in tqdm(dataloader_test):
+                    batch = batch.to(device)
+                    loss = model.forward(batch)[0]
+                    loss_avg += loss
 
-            loss_avg /= len(dataloader_test)
-            if args.log_wandb:
-                wandb.log({"evaluation_avg_loss": loss_avg})
+                loss_avg /= len(dataloader_test)
+                if args.log_wandb:
+                    wandb.log({"evaluation_avg_loss": loss_avg})
 
-            logging.info(f"Average loss: {loss_avg}")
+                logging.info(f"Average loss: {loss_avg}")
     finally:
         if args.save_model:
             torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")

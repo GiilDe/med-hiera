@@ -43,6 +43,7 @@ def main(args):
             # Track hyperparameters and run metadata
             config={
                 "learning_rate": args.learning_rate,
+                "pretrained_path": args.pretrained_path,
             },
         )
 
@@ -94,20 +95,21 @@ def main(args):
                 wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
 
         model.eval()
-        loss_avg = torch.zeros(1).to(device)
-        for x, y in tqdm(dataloader_test):
-            x = x.to(device)
-            y = y.to(device)
-            predictions = model.forward(x)
-            predictions = sigmoid(predictions)
-            loss = loss_func(predictions, y)
-            loss_avg += loss
+        with torch.no_grad():
+            loss_avg = torch.zeros(1).to(device)
+            for x, y in tqdm(dataloader_test):
+                x = x.to(device)
+                y = y.to(device)
+                predictions = model.forward(x)
+                predictions = sigmoid(predictions)
+                loss = loss_func(predictions, y)
+                loss_avg += loss
 
-        loss_avg /= len(dataloader_train)
-        if args.log_wandb:
-            wandb.log({"evaluation_avg_loss": loss_avg})
+            loss_avg /= len(dataloader_train)
+            if args.log_wandb:
+                wandb.log({"evaluation_avg_loss": loss_avg})
 
-        logging.info(f"Average loss: {loss_avg}")
+            logging.info(f"Average loss: {loss_avg}")
     if args.save_model:
         torch.save(model.state_dict(), "med-mae_hiera_tiny_224_classification.pth")
 
