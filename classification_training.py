@@ -22,22 +22,6 @@ logging.basicConfig(
 
 
 def main(args):
-    model: Hiera = hiera_tiny_224(
-        pretrained=False, checkpoint="hiera_in1k", num_classes=15
-    )
-    if ".pth" in args.pretrained_path:
-        model_state_dict = torch.load(args.pretrained_path)
-        logging.info(f"Loaded model from path {args.pretrained_path}")
-    else:
-        torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
-        url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
-        model_state_dict = torch.hub.load_state_dict_from_url(url)
-        logging.info(f"Loaded model from url {url}")
-
-    model.load_state_dict(model_state_dict, strict=False)
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     if args.log_wandb:
         wandb.login()
         wandb.init(
@@ -53,6 +37,22 @@ def main(args):
                 "epochs": args.epochs,
             },
         )
+
+    model: Hiera = hiera_tiny_224(
+        pretrained=False, checkpoint="hiera_in1k", num_classes=15
+    )
+    if ".pth" in args.pretrained_path:
+        model_state_dict = torch.load(args.pretrained_path)
+        logging.info(f"Loaded model from path {args.pretrained_path}")
+    else:
+        torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+        url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
+        model_state_dict = torch.hub.load_state_dict_from_url(url)
+        logging.info(f"Loaded model from url {url}")
+
+    model.load_state_dict(model_state_dict, strict=False)
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     dataset_train = FolderDataset(
         paths=train_paths,

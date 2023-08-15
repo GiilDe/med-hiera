@@ -109,7 +109,7 @@ def main(args):
                 logging.info(f"Average loss: {loss_avg}")
     finally:
         if args.save_model:
-            torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
+            torch.save(model.state_dict(), args.save_model_name)
 
 
 if __name__ == "__main__":
@@ -127,6 +127,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--wandb_run_name", type=str, default="")
+    parser.add_argument("--save_model_name", type=str, default="med-mae_hiera_tiny_224.pth")
 
     args = parser.parse_args()
     main(args)
