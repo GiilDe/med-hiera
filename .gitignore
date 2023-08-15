@@ -32,3 +32,4 @@ awesome.out
 med-mae_hiera_tiny_224.pth
 run_classification.slurm
 run_mae.slurm
+checkpoints/hiera_tiny_224.pth

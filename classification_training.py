@@ -22,15 +22,22 @@ def main(args):
     model: Hiera = hiera_tiny_224(
         pretrained=False, checkpoint="hiera_in1k", num_classes=15
     )
-    # strict=False because the .pth includes the decoder params which we don't need for classification.
-    # Plus, the .pth file lacks some params that are needed in the model
-    model.load_state_dict(torch.load("med-mae_hiera_tiny_224.pth"), strict=False)
+    if ".pth" in args.pretrained_path:
+        model_state_dict = torch.load(args.pretrained_path)
+    else:
+        torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+        model_state_dict = torch.hub.load_state_dict_from_url(
+            "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
+        )
+
+    model.load_state_dict(model_state_dict, strict=False)
+
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     if args.log_wandb:
         wandb.login()
         wandb.init(
-            name="med-hiera_1 classification",
+            name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1 classification",
             # Set the project where this run will be logged
             project="med-hiera",
             # Track hyperparameters and run metadata
@@ -60,36 +67,46 @@ def main(args):
     loss_func = BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     model = model.to(device)
-    model.train()
 
-    for x, y in tqdm(dataloader_train):
-        x = x.to(device)
-        y = y.to(device)
-        predictions = model.forward(x)
-        predictions = sigmoid(predictions)
-        optimizer.zero_grad()
-        loss = loss_func(predictions, y)
-        loss.backward()
-        optimizer.step()
+    ACCUMULATION_STEPS = 1
+    total_epochs = 40
+    num_batches = int(len(dataloader_train) / ACCUMULATION_STEPS)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=args.learning_rate,
+        steps_per_epoch=num_batches,
+        epochs=total_epochs,
+    )
+    for epoch in range(total_epochs):
+        model.train()
+        for x, y in tqdm(dataloader_train):
+            x = x.to(device)
+            y = y.to(device)
+            predictions = model.forward(x)
+            predictions = sigmoid(predictions)
+            optimizer.zero_grad()
+            loss = loss_func(predictions, y)
+            loss.backward()
+            optimizer.step()
 
+            if args.log_wandb:
+                wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+
+        model.eval()
+        loss_avg = torch.zeros(1).to(device)
+        for x, y in tqdm(dataloader_test):
+            x = x.to(device)
+            y = y.to(device)
+            predictions = model.forward(x)
+            predictions = sigmoid(predictions)
+            loss = loss_func(predictions, y)
+            loss_avg += loss
+
+        loss_avg /= len(dataloader_train)
         if args.log_wandb:
-            wandb.log({"loss": loss})
+            wandb.log({"evaluation_avg_loss": loss_avg})
 
-    model.eval()
-    loss_avg = torch.zeros(1).to(device)
-    for x, y in tqdm(dataloader_test):
-        x = x.to(device)
-        y = y.to(device)
-        predictions = model.forward(x)
-        predictions = sigmoid(predictions)
-        loss = loss_func(predictions, y)
-        loss_avg += loss
-
-    loss_avg /= len(dataloader_train)
-    if args.log_wandb:
-        wandb.log({"evaluation_avg_loss": loss_avg})
-
-    logging.info(f"Average loss: {loss_avg}")
+        logging.info(f"Average loss: {loss_avg}")
     if args.save_model:
         torch.save(model.state_dict(), "med-mae_hiera_tiny_224_classification.pth")
 
@@ -101,11 +118,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=0.001,
+        default=0.0001,
         help="Learning rate for model training",
     )
     parser.add_argument("--save_model", type=bool, default=False)
     parser.add_argument("--log_wandb", type=bool, default=False)
+    parser.add_argument("--wandb_run_name", type=str, default=False)
+    parser.add_argument("--pretrained_path", type=str, default=False)
 
     args = parser.parse_args()
     main(args)

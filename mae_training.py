@@ -74,6 +74,7 @@ def main(args):
         epochs=total_epochs,
     )
     for epoch in range(total_epochs):
+        model.train()
         for batch_idx, batch in enumerate(tqdm(dataloader_train)):
             batch = batch.to(device)
             loss = model.forward(batch)[0]
@@ -89,18 +90,18 @@ def main(args):
                 scheduler.step()
                 optimizer.zero_grad()
 
-    model.eval()
-    loss_avg = torch.zeros(1).to(device)
-    for batch in tqdm(dataloader_test):
-        batch = batch.to(device)
-        loss = model.forward(batch)[0]
-        loss_avg += loss
+        model.eval()
+        loss_avg = torch.zeros(1).to(device)
+        for batch in tqdm(dataloader_test):
+            batch = batch.to(device)
+            loss = model.forward(batch)[0]
+            loss_avg += loss
 
-    loss_avg /= len(dataloader_test)
-    if args.log_wandb:
-        wandb.log({"evaluation_avg_loss": loss_avg})
+        loss_avg /= len(dataloader_test)
+        if args.log_wandb:
+            wandb.log({"evaluation_avg_loss": loss_avg})
 
-    logging.info(f"Average loss: {loss_avg}")
+        logging.info(f"Average loss: {loss_avg}")
     if args.save_model:
         torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
 
