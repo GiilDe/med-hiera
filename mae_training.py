@@ -43,6 +43,7 @@ def main(args):
             # Track hyperparameters and run metadata
             config={
                 "learning_rate": args.learning_rate,
+                "epochs": args.epochs,
             },
         )
 
@@ -58,11 +59,10 @@ def main(args):
         dataset_train, batch_size=32, shuffle=True, num_workers=4
     )
     dataloader_test = DataLoader(
-        dataset_test, batch_size=32, shuffle=True, num_workers=4
+        dataset_test, batch_size=8, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
-    total_epochs = 40
     ACCUMULATION_STEPS = 1
     num_batches = int(len(dataloader_train) / ACCUMULATION_STEPS)
 
@@ -71,39 +71,41 @@ def main(args):
         optimizer,
         max_lr=args.learning_rate,
         steps_per_epoch=num_batches,
-        epochs=total_epochs,
+        epochs=args.epochs,
     )
-    for epoch in range(total_epochs):
-        model.train()
-        for batch_idx, batch in enumerate(tqdm(dataloader_train)):
-            batch = batch.to(device)
-            loss = model.forward(batch)[0]
-            loss /= ACCUMULATION_STEPS
-            loss.backward()
+    try:
+        for epoch in range(args.epochs):
+            model.train()
+            for batch_idx, batch in enumerate(tqdm(dataloader_train)):
+                batch = batch.to(device)
+                loss = model.forward(batch)[0]
+                loss /= ACCUMULATION_STEPS
+                loss.backward()
+                if args.log_wandb:
+                    wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+
+                if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
+                    batch_idx + 1 == len(dataloader_train)
+                ):
+                    optimizer.step()
+                    scheduler.step()
+                    optimizer.zero_grad()
+
+            model.eval()
+            loss_avg = torch.zeros(1).to(device)
+            for batch in tqdm(dataloader_test):
+                batch = batch.to(device)
+                loss = model.forward(batch)[0]
+                loss_avg += loss
+
+            loss_avg /= len(dataloader_test)
             if args.log_wandb:
-                wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+                wandb.log({"evaluation_avg_loss": loss_avg})
 
-            if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
-                batch_idx + 1 == len(dataloader_train)
-            ):
-                optimizer.step()
-                scheduler.step()
-                optimizer.zero_grad()
-
-        model.eval()
-        loss_avg = torch.zeros(1).to(device)
-        for batch in tqdm(dataloader_test):
-            batch = batch.to(device)
-            loss = model.forward(batch)[0]
-            loss_avg += loss
-
-        loss_avg /= len(dataloader_test)
-        if args.log_wandb:
-            wandb.log({"evaluation_avg_loss": loss_avg})
-
-        logging.info(f"Average loss: {loss_avg}")
-    if args.save_model:
-        torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
+            logging.info(f"Average loss: {loss_avg}")
+    finally:
+        if args.save_model:
+            torch.save(model.state_dict(), "med-mae_hiera_tiny_224.pth")
 
 
 if __name__ == "__main__":
@@ -118,6 +120,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--save_model", type=bool, default=False)
     parser.add_argument("--log_wandb", type=bool, default=True)
+    parser.add_argument("--epochs", type=int, default=40)
 
     args = parser.parse_args()
     main(args)

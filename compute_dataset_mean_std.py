@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
-    #"/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
 ]
 
 if __name__ == "__main__":
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         std += data.std(2).sum(0)
         nb_samples += batch_samples
         j += batch_samples
-        if j >= 1000:
+        if j >= 2000:
             break
 
     mean /= nb_samples

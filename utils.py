@@ -22,7 +22,10 @@ class FolderDataset(VisionDataset):
             ),
             transforms.CenterCrop(input_size),
             transforms.ToTensor(),
-            transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
+            # only chesxray
+            #transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
+            # all data
+            transforms.Normalize((0.5505, 0.5220, 0.5247), (0.1894, 0.1934, 0.1953)),
         ]
     )
 
