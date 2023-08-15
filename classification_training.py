@@ -88,6 +88,7 @@ def main(args):
             loss = loss_func(predictions, y)
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             if args.log_wandb:
                 wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
