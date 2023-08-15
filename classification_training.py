@@ -24,6 +24,7 @@ def main(args):
     )
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
+        logging.log(logging.INFO, f"Loaded model from path {args.pretrained_path}")
     else:
         torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
         model_state_dict = torch.hub.load_state_dict_from_url(
@@ -44,6 +45,7 @@ def main(args):
             config={
                 "learning_rate": args.learning_rate,
                 "pretrained_path": args.pretrained_path,
+                "epochs": args.epochs,
             },
         )
 
@@ -70,15 +72,14 @@ def main(args):
     model = model.to(device)
 
     ACCUMULATION_STEPS = 1
-    total_epochs = 40
     num_batches = int(len(dataloader_train) / ACCUMULATION_STEPS)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer,
         max_lr=args.learning_rate,
         steps_per_epoch=num_batches,
-        epochs=total_epochs,
+        epochs=args.epochs,
     )
-    for epoch in range(total_epochs):
+    for epoch in range(args.epochs):
         model.train()
         for x, y in tqdm(dataloader_train):
             x = x.to(device)
@@ -128,6 +129,7 @@ if __name__ == "__main__":
     parser.add_argument("--log_wandb", type=bool, default=False)
     parser.add_argument("--wandb_run_name", type=str, default=False)
     parser.add_argument("--pretrained_path", type=str, default=False)
+    parser.add_argument("--epochs", type=int, default=40)
 
     args = parser.parse_args()
     main(args)

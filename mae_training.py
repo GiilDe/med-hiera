@@ -44,6 +44,7 @@ def main(args):
             config={
                 "learning_rate": args.learning_rate,
                 "epochs": args.epochs,
+                "batch_size": args.batch_size,
             },
         )
 
@@ -56,10 +57,10 @@ def main(args):
     logging.info(f"Train dataset size: {len(dataset_train)}")
     logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_train = DataLoader(
-        dataset_train, batch_size=32, shuffle=True, num_workers=4
+        dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
     dataloader_test = DataLoader(
-        dataset_test, batch_size=32, shuffle=True, num_workers=4
+        dataset_test, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
     # Assuming you have already defined your optimizer and dataloader
@@ -122,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_model", type=bool, default=False)
     parser.add_argument("--log_wandb", type=bool, default=True)
     parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--batch_size", type=int, default=32)
 
     args = parser.parse_args()
     main(args)
