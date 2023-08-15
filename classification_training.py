@@ -27,12 +27,12 @@ def main(args):
     )
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
-        logging.log(logging.INFO, f"Loaded model from path {args.pretrained_path}")
+        logging.info(f"Loaded model from path {args.pretrained_path}")
     else:
         torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
-        model_state_dict = torch.hub.load_state_dict_from_url(
-            "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
-        )
+        url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
+        model_state_dict = torch.hub.load_state_dict_from_url(url)
+        logging.info(f"Loaded model from url {url}")
 
     model.load_state_dict(model_state_dict, strict=False)
 
