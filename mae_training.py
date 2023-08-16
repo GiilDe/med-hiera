@@ -35,6 +35,7 @@ def main(args):
     model = model.to(device)
     if args.log_wandb:
         import wandb
+
         wandb.login()
         wandb.init(
             name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1",
@@ -74,42 +75,38 @@ def main(args):
         steps_per_epoch=num_batches,
         epochs=args.epochs,
     )
-    try:
-        for epoch in range(args.epochs):
-            model.train()
-            for batch_idx, batch in enumerate(tqdm(dataloader_train)):
+    for epoch in range(args.epochs):
+        model.train()
+        for batch_idx, batch in enumerate(tqdm(dataloader_train)):
+            batch = batch.to(device)
+            loss = model.forward(batch)[0]
+            loss /= ACCUMULATION_STEPS
+            loss.backward()
+            if args.log_wandb:
+                wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+
+            if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
+                batch_idx + 1 == len(dataloader_train)
+            ):
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
+
+        model.eval()
+        with torch.no_grad():
+            loss_avg = torch.zeros(1).to(device)
+            for batch in tqdm(dataloader_test):
                 batch = batch.to(device)
                 loss = model.forward(batch)[0]
-                loss /= ACCUMULATION_STEPS
-                loss.backward()
-                if args.log_wandb:
-                    wandb.log(
-                        {"loss": loss, "learning_rate": scheduler.get_last_lr()[0]}
-                    )
+                loss_avg += loss
 
-                if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
-                    batch_idx + 1 == len(dataloader_train)
-                ):
-                    optimizer.step()
-                    scheduler.step()
-                    optimizer.zero_grad()
+            loss_avg /= len(dataloader_test)
+            if args.log_wandb:
+                wandb.log({"evaluation_avg_loss": loss_avg})
 
-            model.eval()
-            with torch.no_grad():
-                loss_avg = torch.zeros(1).to(device)
-                for batch in tqdm(dataloader_test):
-                    batch = batch.to(device)
-                    loss = model.forward(batch)[0]
-                    loss_avg += loss
-
-                loss_avg /= len(dataloader_test)
-                if args.log_wandb:
-                    wandb.log({"evaluation_avg_loss": loss_avg})
-
-                logging.info(f"Average loss: {loss_avg}")
-    finally:
-        if args.save_model:
-            torch.save(model.state_dict(), args.save_model_name)
+            logging.info(f"Average loss: {loss_avg}")
+    if args.save_model:
+        torch.save(model.state_dict(), args.save_model_name)
 
 
 if __name__ == "__main__":
@@ -127,7 +124,9 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--wandb_run_name", type=str, default="")
-    parser.add_argument("--save_model_name", type=str, default="med-mae_hiera_tiny_224.pth")
+    parser.add_argument(
+        "--save_model_name", type=str, default="med-mae_hiera_tiny_224.pth"
+    )
 
     args = parser.parse_args()
     main(args)

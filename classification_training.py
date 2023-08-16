@@ -23,6 +23,7 @@ logging.basicConfig(
 def main(args):
     if args.log_wandb:
         import wandb
+
         wandb.login()
         wandb.init(
             name=args.wandb_run_name
@@ -47,7 +48,7 @@ def main(args):
     else:
         torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
         url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
-        model_state_dict = torch.hub.load_state_dict_from_url(url)['model_state']
+        model_state_dict = torch.hub.load_state_dict_from_url(url)["model_state"]
         logging.info(f"Loaded model from url {url}")
         if "head.projection.weight" in model_state_dict:
             del model_state_dict["head.projection.weight"]
@@ -56,8 +57,12 @@ def main(args):
 
     incompatible_keys = model.load_state_dict(model_state_dict, strict=False)
     logging.info(f"Loaded model with missing keys: {incompatible_keys.missing_keys}")
-    logging.info(f"Loaded model with unexpected keys: {incompatible_keys.unexpected_keys}")
-    logging.info(f"number of incompatible keys: {len(incompatible_keys.missing_keys) + len(incompatible_keys.unexpected_keys)}")
+    logging.info(
+        f"Loaded model with unexpected keys: {incompatible_keys.unexpected_keys}"
+    )
+    logging.info(
+        f"number of incompatible keys: {len(incompatible_keys.missing_keys) + len(incompatible_keys.unexpected_keys)}"
+    )
     logging.info(f"overall number of keys: {len(model_state_dict)}")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
