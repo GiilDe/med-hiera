@@ -23,14 +23,12 @@ facebookresearch_hiera_main/examples/img/hiera_arch.png
 facebookresearch_hiera_main/examples/img/dog.jpg
 facebookresearch_hiera_main/.github/workflows/python-publish.yml
 facebookresearch_hiera_main/README.md
-checkpoints/mae_hiera_tiny_224.pth
+checkpoints/*
 trusted_list
 wandb/
 facebookresearch_hiera_main/
 awesome.err
 awesome.out
-med-mae_hiera_tiny_224.pth
 run_classification.slurm
 run_mae.slurm
-checkpoints/hiera_tiny_224.pth
-med-mae_hiera_tiny_224_classification.pth
+*.pth
