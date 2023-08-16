@@ -42,7 +42,7 @@ def main(args):
         )
 
     model: Hiera = hiera_tiny_224(
-        pretrained=False, checkpoint="hiera_in1k", num_classes=15
+        pretrained=False, checkpoint=None, num_classes=15
     )
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
