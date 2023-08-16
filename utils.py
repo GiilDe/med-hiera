@@ -15,19 +15,24 @@ class FolderDataset(VisionDataset):
     labels = None
     original_size = (600, 450)  # size of the example image in the hiera repo
     input_size = 224
+
+    prefix_transform = [
+        transforms.Resize(
+            int((256 / 224) * input_size), interpolation=InterpolationMode.BICUBIC
+        ),
+        transforms.CenterCrop(input_size),
+        transforms.ToTensor(),
+    ]
+    normalize_chesxray = [
+        transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
+    ]
+    normalize_all_data = [
+        transforms.Normalize((0.5505, 0.5220, 0.5247), (0.1894, 0.1934, 0.1953)),
+    ]
     default_transform = transforms.Compose(
-        [
-            transforms.Resize(
-                int((256 / 224) * input_size), interpolation=InterpolationMode.BICUBIC
-            ),
-            transforms.CenterCrop(input_size),
-            transforms.ToTensor(),
-            # only chesxray
-            # transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
-            # all data
-            transforms.Normalize((0.5505, 0.5220, 0.5247), (0.1894, 0.1934, 0.1953)),
-        ]
+        prefix_transform + normalize_all_data
     )
+
 
     @staticmethod
     def process_labels(labels_path):

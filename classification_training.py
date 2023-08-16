@@ -19,6 +19,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
+random_weights = "random-weights"
+
 
 def main(args):
     if args.log_wandb:
@@ -45,7 +47,7 @@ def main(args):
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
         logging.info(f"Loaded model from path {args.pretrained_path}")
-    else:
+    elif args.pretrained_path != random_weights:
         torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
         url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
         model_state_dict = torch.hub.load_state_dict_from_url(url)["model_state"]
@@ -55,15 +57,20 @@ def main(args):
         if "head.projection.bias" in model_state_dict:
             del model_state_dict["head.projection.bias"]
 
-    incompatible_keys = model.load_state_dict(model_state_dict, strict=False)
-    logging.info(f"Loaded model with missing keys: {incompatible_keys.missing_keys}")
-    logging.info(
-        f"Loaded model with unexpected keys: {incompatible_keys.unexpected_keys}"
-    )
-    logging.info(
-        f"number of incompatible keys: {len(incompatible_keys.missing_keys) + len(incompatible_keys.unexpected_keys)}"
-    )
-    logging.info(f"overall number of keys: {len(model_state_dict)}")
+    if args.pretrained_path != random_weights:
+        incompatible_keys = model.load_state_dict(model_state_dict, strict=False)
+        logging.info(
+            f"Loaded model with missing keys: {incompatible_keys.missing_keys}"
+        )
+        logging.info(
+            f"Loaded model with unexpected keys: {incompatible_keys.unexpected_keys}"
+        )
+        logging.info(
+            f"number of incompatible keys: {len(incompatible_keys.missing_keys) + len(incompatible_keys.unexpected_keys)}"
+        )
+        logging.info(f"overall number of keys: {len(model_state_dict)}")
+    else:
+        logging.info("Loaded random weights")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
