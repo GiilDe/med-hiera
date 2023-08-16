@@ -4,7 +4,6 @@ import torch
 from hiera.hiera import Hiera, hiera_tiny_224
 import torchvision
 from utils import FolderDataset
-import wandb
 import logging
 from tqdm import tqdm
 import argparse
@@ -23,6 +22,7 @@ logging.basicConfig(
 
 def main(args):
     if args.log_wandb:
+        import wandb
         wandb.login()
         wandb.init(
             name=args.wandb_run_name
@@ -50,7 +50,11 @@ def main(args):
         model_state_dict = torch.hub.load_state_dict_from_url(url)
         logging.info(f"Loaded model from url {url}")
 
-    model.load_state_dict(model_state_dict, strict=False)
+    incompatible_keys = model.load_state_dict(model_state_dict, strict=False)
+    logging.info(f"Loaded model with missing keys: {incompatible_keys.missing_keys}")
+    logging.info(f"Loaded model with unexpected keys: {incompatible_keys.unexpected_keys}")
+    logging.info(f"number of incompatible keys: {len(incompatible_keys.missing_keys) + len(incompatible_keys.unexpected_keys)}")
+    logging.info(f"overall number of keys: {len(model_state_dict)}")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

@@ -4,7 +4,6 @@ import torch
 from hiera.hiera_mae import MaskedAutoencoderHiera
 import torchvision
 from utils import FolderDataset
-import wandb
 import logging
 from tqdm import tqdm
 import argparse
@@ -35,6 +34,7 @@ def main(args):
     device = torch.device("cuda")
     model = model.to(device)
     if args.log_wandb:
+        import wandb
         wandb.login()
         wandb.init(
             name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1",
