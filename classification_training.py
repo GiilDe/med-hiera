@@ -47,8 +47,12 @@ def main(args):
     else:
         torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
         url = "https://dl.fbaipublicfiles.com/hiera/hiera_tiny_224.pth"
-        model_state_dict = torch.hub.load_state_dict_from_url(url)
+        model_state_dict = torch.hub.load_state_dict_from_url(url)['model_state']
         logging.info(f"Loaded model from url {url}")
+        if "head.projection.weight" in model_state_dict:
+            del model_state_dict["head.projection.weight"]
+        if "head.projection.bias" in model_state_dict:
+            del model_state_dict["head.projection.bias"]
 
     incompatible_keys = model.load_state_dict(model_state_dict, strict=False)
     logging.info(f"Loaded model with missing keys: {incompatible_keys.missing_keys}")
