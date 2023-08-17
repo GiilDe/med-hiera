@@ -38,12 +38,18 @@ def main(args):
                 "learning_rate": args.learning_rate,
                 "pretrained_path": args.pretrained_path,
                 "epochs": args.epochs,
+                "batch_size": args.batch_size,
+                "weight_decay": args.weight_decay,
+                "rotation_angle": args.rotation_angle,
             },
         )
 
-    model: Hiera = hiera_tiny_224(
-        pretrained=False, checkpoint=None, num_classes=15
-    )
+    train_transform = FolderDataset.prefix_transform.copy()
+    train_transform.append(torchvision.transforms.RandomRotation(args.rotation_angle))
+    train_transform += FolderDataset.normalize_all_data
+    train_transform = torchvision.transforms.Compose(train_transform)
+
+    model: Hiera = hiera_tiny_224(pretrained=False, checkpoint=None, num_classes=15)
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
         logging.info(f"Loaded model from path {args.pretrained_path}")
@@ -77,9 +83,10 @@ def main(args):
     dataset_train = FolderDataset(
         paths=train_paths,
         labels_path=labels_path,
+        transform=train_transform,
     )
     dataloader_train = DataLoader(
-        dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=4
+        dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=0
     )
     dataset_test = FolderDataset(
         paths=test_paths,
@@ -88,12 +95,14 @@ def main(args):
     logging.info(f"Train dataset size: {len(dataset_train)}")
     logging.info(f"Test dataset size: {len(dataset_test)}")
     dataloader_test = DataLoader(
-        dataset_test, batch_size=args.batch_size, shuffle=True, num_workers=4
+        dataset_test, batch_size=args.batch_size, shuffle=True, num_workers=0
     )
 
     sigmoid = Sigmoid()
     loss_func = BCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(
+        model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay
+    )
     model = model.to(device)
 
     ACCUMULATION_STEPS = 1
@@ -178,6 +187,8 @@ if __name__ == "__main__":
     parser.add_argument("--pretrained_path", type=str, default="")
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--weight_decay", type=float, default=0)
+    parser.add_argument("--rotation_angle", type=int, default=30)
 
     args = parser.parse_args()
     main(args)
