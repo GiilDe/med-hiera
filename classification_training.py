@@ -50,7 +50,12 @@ def main(args):
     train_transform += FolderDataset.normalize_all_data
     train_transform = torchvision.transforms.Compose(train_transform)
 
-    model: Hiera = hiera_tiny_224(pretrained=False, checkpoint=None, num_classes=15, head_dropout=args.head_dropout)
+    model: Hiera = hiera_tiny_224(
+        pretrained=False,
+        checkpoint=None,
+        num_classes=15,
+        head_dropout=args.head_dropout,
+    )
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
         logging.info(f"Loaded model from path {args.pretrained_path}")
@@ -188,9 +193,9 @@ if __name__ == "__main__":
     parser.add_argument("--pretrained_path", type=str, default="")
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--weight_decay", type=float, default=0)
-    parser.add_argument("--rotation_angle", type=int, default=30)
-    parser.add_argument("--head_dropout", type=float, default=0)
+    parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
+    parser.add_argument("--rotation_angle", type=int, default=0)  # set to 30 if needed
+    parser.add_argument("--head_dropout", type=float, default=0)  # 0.5
 
     args = parser.parse_args()
     main(args)
