@@ -8,6 +8,7 @@ import logging
 from tqdm import tqdm
 import argparse
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
+from torchvision.transforms import RandAugment, ToTensor
 
 train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
@@ -46,11 +47,20 @@ def main(args):
                 "learning_rate": args.learning_rate,
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
+                "weight_decay": args.weight_decay,
+                "mask_ratio": args.mask_ratio,
             },
         )
 
+    train_transform = FolderDataset.prefix_transform[:-1].copy()
+    train_transform.append(RandAugment())
+    train_transform.append(ToTensor())
+    train_transform += FolderDataset.normalize_all_data
+    train_transform = torchvision.transforms.Compose(train_transform)
+
     dataset_train = FolderDataset(
         paths=train_paths,
+        transform=train_transform,
     )
     dataset_test = FolderDataset(
         paths=test_paths,
@@ -63,7 +73,9 @@ def main(args):
     dataloader_test = DataLoader(
         dataset_test, batch_size=args.batch_size, shuffle=True, num_workers=4
     )
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(
+        model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay
+    )
     # Assuming you have already defined your optimizer and dataloader
     ACCUMULATION_STEPS = 1
     num_batches = int(len(dataloader_train) / ACCUMULATION_STEPS)
@@ -79,11 +91,17 @@ def main(args):
         model.train()
         for batch_idx, batch in enumerate(tqdm(dataloader_train)):
             batch = batch.to(device)
-            loss = model.forward(batch)[0]
+            loss = model.forward(batch, mask_ratio=args.mask_ratio)[0]
             loss /= ACCUMULATION_STEPS
             loss.backward()
             if args.log_wandb:
-                wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
+                wandb.log(
+                    {
+                        "loss": loss,
+                        "learning_rate": scheduler.get_last_lr()[0],
+                        "epochs": args.epochs,
+                    }
+                )
 
             if ((batch_idx + 1) % ACCUMULATION_STEPS == 0) or (
                 batch_idx + 1 == len(dataloader_train)
@@ -120,13 +138,15 @@ if __name__ == "__main__":
         help="Learning rate for model training",
     )
     parser.add_argument("--save_model", type=bool, default=False)
-    parser.add_argument("--log_wandb", type=bool, default=True)
+    parser.add_argument("--log_wandb", type=bool, default=False)
     parser.add_argument("--epochs", type=int, default=40)
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--wandb_run_name", type=str, default="")
     parser.add_argument(
         "--save_model_name", type=str, default="med-mae_hiera_tiny_224.pth"
     )
+    parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
+    parser.add_argument("--mask_ratio", type=float, default=0.6)
 
     args = parser.parse_args()
     main(args)
