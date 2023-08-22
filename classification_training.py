@@ -12,7 +12,7 @@ from sklearn.metrics import roc_curve, auc
 import numpy as np
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
-test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/test/"
+test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/validation_2/"
 labels_path = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification/checxpert_data/Data_Entry_2017.csv"
 
 logging.basicConfig(
@@ -84,7 +84,7 @@ def main(args):
     else:
         logging.info("Loaded random weights")
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda")
 
     dataset_train = FolderDataset(
         paths=train_paths,
