@@ -9,6 +9,7 @@ from tqdm import tqdm
 import argparse
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
 from torchvision.transforms import RandAugment, ToTensor
+from distutils.util import strtobool
 
 train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
@@ -141,8 +142,10 @@ if __name__ == "__main__":
         default=0.001,
         help="Learning rate for model training",
     )
-    parser.add_argument("--save_model", type=bool, default=False)
-    parser.add_argument("--log_wandb", type=bool, default=False)
+    parser.add_argument(
+        "--save_model", type=lambda x: bool(strtobool(x)), default=False
+    )
+    parser.add_argument("--log_wandb", type=lambda x: bool(strtobool(x)), default=False)
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--wandb_run_name", type=str, default="")
@@ -151,8 +154,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
     parser.add_argument("--mask_ratio", type=float, default=0.6)
-    parser.add_argument("--use_augmentations", type=bool, default=False)
-    parser.add_argument("--use_cocktail", type=bool, default=True)
+    parser.add_argument(
+        "--use_augmentations", type=lambda x: bool(strtobool(x)), default=False
+    )
+    parser.add_argument(
+        "--use_cocktail", type=lambda x: bool(strtobool(x)), default=True
+    )
 
     args = parser.parse_args()
     main(args)

@@ -10,6 +10,7 @@ import argparse
 from torch.nn import BCELoss, Sigmoid
 from sklearn.metrics import roc_curve, auc
 import numpy as np
+from distutils.util import strtobool
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
 test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/validation_2/"
@@ -187,8 +188,10 @@ if __name__ == "__main__":
         default=0.0001,
         help="Learning rate for model training",
     )
-    parser.add_argument("--save_model", type=bool, default=False)
-    parser.add_argument("--log_wandb", type=bool, default=False)
+    parser.add_argument(
+        "--save_model", type=lambda x: bool(strtobool(x)), default=False
+    )
+    parser.add_argument("--log_wandb", type=lambda x: bool(strtobool(x)), default=False)
     parser.add_argument("--wandb_run_name", type=str, default="")
     parser.add_argument("--pretrained_path", type=str, default="")
     parser.add_argument("--epochs", type=int, default=40)
