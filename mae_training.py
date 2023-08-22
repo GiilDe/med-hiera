@@ -61,7 +61,7 @@ def main(args):
 
     dataset_train = FolderDataset(
         paths=train_paths,
-        transform=train_transform if args.use_augmentations else None,
+        transform=train_transform if args.use_augmentations else FolderDataset.default_transform,
     )
     dataset_test = FolderDataset(
         paths=test_paths,
