@@ -49,6 +49,7 @@ def main(args):
                 "batch_size": args.batch_size,
                 "weight_decay": args.weight_decay,
                 "mask_ratio": args.mask_ratio,
+                "use_augmentations": args.use_augmentations,
             },
         )
 
@@ -60,7 +61,7 @@ def main(args):
 
     dataset_train = FolderDataset(
         paths=train_paths,
-        transform=train_transform,
+        transform=train_transform if args.use_augmentations else None,
     )
     dataset_test = FolderDataset(
         paths=test_paths,
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
     parser.add_argument("--mask_ratio", type=float, default=0.6)
+    parser.add_argument("--use_augmentations", type=bool, default=False)
 
     args = parser.parse_args()
     main(args)
