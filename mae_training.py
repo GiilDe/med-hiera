@@ -26,14 +26,16 @@ logging.basicConfig(
 
 
 def main(args):
-    if not args.init_random_weights:
-        torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
         model="mae_hiera_tiny_224",
-        pretrained=not args.init_random_weights,
+        pretrained=(not args.init_random_weights)
+        and (args.pretrained_model_path != ""),
         checkpoint="mae_in1k",
     )
+    if args.pretrained_model_path != "":
+        model.load_state_dict(torch.load(args.pretrained_model_path))
     device = torch.device("cuda")
     model = model.to(device)
     if args.log_wandb:
@@ -54,6 +56,7 @@ def main(args):
                 "use_augmentations": args.use_augmentations,
                 "use_cocktail": args.use_cocktail,
                 "init_random_weights": args.init_random_weights,
+                "use_main_data": args.use_main_data,
             },
         )
 
@@ -63,8 +66,13 @@ def main(args):
     train_transform += FolderDataset.normalize_all_data
     train_transform = torchvision.transforms.Compose(train_transform)
 
+    train_paths_ = []
+    if args.use_main_data:
+        train_paths_.append(train_paths[0])
+    if args.use_cocktail:
+        train_paths_.append(train_paths[1])
     dataset_train = FolderDataset(
-        paths=train_paths if args.use_cocktail else train_paths[:1],
+        paths=train_paths_,
         transform=train_transform
         if args.use_augmentations
         else FolderDataset.default_transform,
@@ -165,6 +173,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--init_random_weights", type=lambda x: bool(strtobool(x)), default=False
     )
+    parser.add_argument(
+        "--use_main_data", type=lambda x: bool(strtobool(x)), default=True
+    )
+    parser.add_argument("--pretrained_model_path", type=str, default="")
 
     args = parser.parse_args()
+    assert args.use_main_data or args.use_cocktail
     main(args)
