@@ -32,3 +32,5 @@ awesome.out
 run_classification.slurm
 run_mae.slurm
 *.pth
+*.err
+*.out
