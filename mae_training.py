@@ -27,14 +27,18 @@ logging.basicConfig(
 
 def main(args):
     torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    pretrained_hub = (not args.init_random_weights) and (
+        args.pretrained_model_path == ""
+    )
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
         model="mae_hiera_tiny_224",
-        pretrained=(not args.init_random_weights)
-        and (args.pretrained_model_path != ""),
+        pretrained=pretrained_hub,
         checkpoint="mae_in1k",
     )
+    logging.info(f"Model loaded from torch.hub: {pretrained_hub}")
     if args.pretrained_model_path != "":
+        logging.info(f"Loading pretrained model from {args.pretrained_model_path}")
         model.load_state_dict(torch.load(args.pretrained_model_path))
     device = torch.device("cuda")
     model = model.to(device)
