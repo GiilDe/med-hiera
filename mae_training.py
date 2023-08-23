@@ -26,11 +26,12 @@ logging.basicConfig(
 
 
 def main(args):
-    torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
+    if not args.init_random_weights:
+        torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
         model="mae_hiera_tiny_224",
-        pretrained=True,
+        pretrained=not args.init_random_weights,
         checkpoint="mae_in1k",
     )
     device = torch.device("cuda")
@@ -52,6 +53,7 @@ def main(args):
                 "mask_ratio": args.mask_ratio,
                 "use_augmentations": args.use_augmentations,
                 "use_cocktail": args.use_cocktail,
+                "init_random_weights": args.init_random_weights,
             },
         )
 
@@ -159,6 +161,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--use_cocktail", type=lambda x: bool(strtobool(x)), default=True
+    )
+    parser.add_argument(
+        "--init_random_weights", type=lambda x: bool(strtobool(x)), default=False
     )
 
     args = parser.parse_args()
