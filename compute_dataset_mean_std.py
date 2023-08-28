@@ -2,6 +2,7 @@ import torch
 from utils import FolderDataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from torchvision import transforms
 
 
 train_paths = [
@@ -11,7 +12,7 @@ train_paths = [
 
 if __name__ == "__main__":
     dataset_train = FolderDataset(
-        paths=train_paths,
+        paths=train_paths, transform=transforms.Compose(FolderDataset.prefix_transform)
     )
     dataloader_train = DataLoader(
         dataset_train, batch_size=1, shuffle=True, num_workers=4

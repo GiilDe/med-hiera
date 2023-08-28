@@ -27,8 +27,9 @@ class FolderDataset(VisionDataset):
         transforms.Normalize((0.5317, 0.5317, 0.5317), (0.2001, 0.2001, 0.2001)),
     ]
     normalize_all_data = [
-        transforms.Normalize((0.5505, 0.5220, 0.5247), (0.1894, 0.1934, 0.1953)),
+        transforms.Normalize((0.5163, 0.5011, 0.5025), (0.2222, 0.2245, 0.2256)),
     ]
+     
     default_transform = transforms.Compose(
         prefix_transform + normalize_all_data
     )

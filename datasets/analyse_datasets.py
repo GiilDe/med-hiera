@@ -7,7 +7,9 @@ datasets_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/test/",
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
-    "/home/yandex/MLFH2023/giladd/hiera/datasets/covid_data/COVID-19_Radiography_Dataset/**/"
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/covid_cxr2/**/",
+    "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/COVID-19_Radiography_Dataset/**/",
+    # "/home/yandex/MLFH2023/giladd/hiera/datasets/covid_data/COVID-19_Radiography_Dataset/**/",
 ]
 
 
