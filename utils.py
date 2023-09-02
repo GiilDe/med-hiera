@@ -111,8 +111,7 @@ class FolderDataset(VisionDataset):
 
         :return: number of samples in data set
         """
-        #return len(self.img_paths)
-        return 50
+        return len(self.img_paths)
 
     def __getitem__(self, index):
         """
