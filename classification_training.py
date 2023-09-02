@@ -171,6 +171,10 @@ def main(args):
                 wandb.log(
                     {"evaluation_avg_loss": loss_avg, "auc_score_avg": auc_score_avg}
                 )
+                wandb.log(
+                    {"per-label auc": dict(zip(FolderDataset.labels_list, auc_scores))}
+                )
+
             logging.info(f"Average loss: {loss_avg}")
             logging.info(f"AUC score: {auc_score_avg}")
 
