@@ -47,6 +47,7 @@ def main(args):
 
         wandb.login()
         wandb.init(
+            entity="med-hiera",
             name=args.wandb_run_name if args.wandb_run_name else "med-hiera_1",
             # Set the project where this run will be logged
             project="med-hiera",
