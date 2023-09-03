@@ -155,7 +155,7 @@ def main(args):
                 loss = loss_func(predictions, y)
                 loss_avg += loss
 
-            loss_avg /= len(dataloader_train)
+            loss_avg /= len(dataloader_test)
 
             all_predictions = all_predictions.cpu()
             all_labels = all_labels.cpu()
