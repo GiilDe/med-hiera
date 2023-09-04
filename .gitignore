@@ -34,3 +34,8 @@ run_mae.slurm
 *.pth
 *.err
 *.out
+run_mae_sweep.slurm
+run_mae_random_weights.slurm
+run_mae_no_cocktail.slurm
+run_mae_cocktail_pretraining.slurm
+run_mae_classification.slurm

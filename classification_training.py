@@ -43,7 +43,7 @@ def main(args):
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "weight_decay": args.weight_decay,
-                "rotation_angle": args.rotation_angle,
+                "use_augmentations": args.use_augmentations,
                 "head_dropout": args.head_dropout,
             },
         )
@@ -92,7 +92,9 @@ def main(args):
     dataset_train = FolderDataset(
         paths=train_paths,
         labels_path=labels_path,
-        transform=train_transform,
+        transform=train_transform
+        if args.use_augmentations
+        else FolderDataset.default_transform,
     )
     dataloader_train = DataLoader(
         dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=0
@@ -184,7 +186,7 @@ def main(args):
         torch.save(model.state_dict(), "med-mae_hiera_tiny_224_classification.pth")
 
 
-if __name__ == "__main__":
+def init_args():
     parser = argparse.ArgumentParser(
         description="Train a model with a customizable learning rate."
     )
@@ -203,8 +205,13 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
-    parser.add_argument("--rotation_angle", type=int, default=0)  # set to 30 if needed
+    parser.add_argument(
+        "--use_augmentations", type=lambda x: bool(strtobool(x)), default=False
+    )
     parser.add_argument("--head_dropout", type=float, default=0)  # 0.5
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+if __name__ == "__main__":
+    args = init_args()
     main(args)

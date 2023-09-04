@@ -12,4 +12,4 @@
 #SBATCH --gpus=1 # GPUs in total
 #SBATCH --account=gpu-students
 
-python run_mae_sweep.py
+python run_classification_sweep.py
