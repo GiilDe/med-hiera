@@ -8,12 +8,15 @@ import logging
 from tqdm import tqdm
 import argparse
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
-from torchvision.transforms import RandAugment, ToTensor
+from torchvision.transforms import ToTensor
+from rand_augment import RandAugment
 from distutils.util import strtobool
 
 train_paths = [
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/",
     "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/**/",
+    # "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/covid_cxr2/**/",
+    # "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_mae/COVID-19_Radiography_Dataset/**/",
 ]
 
 test_paths = [
@@ -32,7 +35,7 @@ def main(args):
     )
     model: MaskedAutoencoderHiera = torch.hub.load(
         "facebookresearch/hiera",
-        model="mae_hiera_tiny_224",
+        model="mae_hiera_small_224",
         pretrained=pretrained_hub,
         checkpoint="mae_in1k",
     )
@@ -75,7 +78,7 @@ def main(args):
     if args.use_main_data:
         train_paths_.append(train_paths[0])
     if args.use_cocktail:
-        train_paths_.append(train_paths[1])
+        train_paths_ += train_paths[1:]
     dataset_train = FolderDataset(
         paths=train_paths_,
         transform=train_transform
@@ -147,7 +150,7 @@ def main(args):
         torch.save(model.state_dict(), args.save_model_name)
 
 
-if __name__ == "__main__":
+def init_args():
     parser = argparse.ArgumentParser(
         description="Train a model with a customizable learning rate."
     )
@@ -183,6 +186,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--pretrained_model_path", type=str, default="")
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = init_args()
     assert args.use_main_data or args.use_cocktail
     main(args)

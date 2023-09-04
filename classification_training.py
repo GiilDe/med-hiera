@@ -1,7 +1,7 @@
 from torch import optim
 from torch.utils.data import DataLoader
 import torch
-from hiera.hiera import Hiera, hiera_tiny_224
+from hiera.hiera import Hiera, hiera_small_224, hiera_tiny_224
 import torchvision
 from utils import FolderDataset
 import logging
@@ -11,6 +11,7 @@ from torch.nn import BCELoss, Sigmoid
 from sklearn.metrics import roc_curve, auc
 import numpy as np
 from distutils.util import strtobool
+from rand_augment import RandAugment
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
 test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/validation_2/"
@@ -48,11 +49,11 @@ def main(args):
         )
 
     train_transform = FolderDataset.prefix_transform.copy()
-    train_transform.append(torchvision.transforms.RandomRotation(args.rotation_angle))
+    train_transform.append(RandAugment())
     train_transform += FolderDataset.normalize_all_data
     train_transform = torchvision.transforms.Compose(train_transform)
 
-    model: Hiera = hiera_tiny_224(
+    model: Hiera = hiera_small_224(
         pretrained=False,
         checkpoint=None,
         num_classes=15,
