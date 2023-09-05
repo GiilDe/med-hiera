@@ -12,6 +12,7 @@ from sklearn.metrics import roc_curve, auc
 import numpy as np
 from distutils.util import strtobool
 from rand_augment import RandAugment
+from torchvision.transforms import ToTensor
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
 test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/validation_2/"
@@ -48,17 +49,26 @@ def main(args):
             },
         )
 
-    train_transform = FolderDataset.prefix_transform.copy()
+    train_transform = FolderDataset.prefix_transform[:-1].copy()
     train_transform.append(RandAugment())
+    train_transform.append(ToTensor())
     train_transform += FolderDataset.normalize_all_data
     train_transform = torchvision.transforms.Compose(train_transform)
 
-    model: Hiera = hiera_small_224(
-        pretrained=False,
-        checkpoint=None,
-        num_classes=15,
-        head_dropout=args.head_dropout,
-    )
+    if args.size == "tiny":
+        model: Hiera = hiera_tiny_224(
+            pretrained=False,
+            checkpoint=None,
+            num_classes=15,
+            head_dropout=args.head_dropout,
+        )
+    else:
+        model: Hiera = hiera_small_224(
+            pretrained=False,
+            checkpoint=None,
+            num_classes=15,
+            head_dropout=args.head_dropout,
+        )
     if ".pth" in args.pretrained_path:
         model_state_dict = torch.load(args.pretrained_path)
         logging.info(f"Loaded model from path {args.pretrained_path}")
@@ -209,6 +219,7 @@ def init_args():
         "--use_augmentations", type=lambda x: bool(strtobool(x)), default=False
     )
     parser.add_argument("--head_dropout", type=float, default=0)  # 0.5
+    parser.add_argument("--size", type=str, default="tiny")  # 0.5
     return parser.parse_args()
 
 
