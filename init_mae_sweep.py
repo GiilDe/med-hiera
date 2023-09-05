@@ -24,8 +24,9 @@ if __name__ == "__main__":
         "method": "random",
         "metric": {"goal": "minimize", "name": "evaluation_avg_loss"},
         "parameters": {
-            "weight_decay": {"max": 0.1, "min": 0.0},
-            "mask_ratio": {"max": 0.9, "min": 0.6},
+            # "weight_decay": {"max": 0.05, "min": 0.0},
+            "weight_decay": {"value": 0.0},
+            "mask_ratio": {"max": 0.8, "min": 0.6},
             "learning_rate": {"max": 5e-4, "min": 1e-5},
             "use_augmentations": {"values": [True, False]},
             "epochs": {"values": [10, 20, 30, 40, 50]},

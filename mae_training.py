@@ -168,7 +168,7 @@ def init_args():
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--wandb_run_name", type=str, default="")
     parser.add_argument(
-        "--save_model_name", type=str, default="med-mae_hiera_tiny_224.pth"
+        "--save_model_name", type=str, default=""
     )
     parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
     parser.add_argument("--mask_ratio", type=float, default=0.6)

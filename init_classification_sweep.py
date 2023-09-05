@@ -16,9 +16,9 @@ def classification_training_wrapper():
     default_args.epochs = wandb.config.epochs
     default_args.head_dropout = wandb.config.head_dropout
     default_args.log_wandb = True
-    default_args.pretrained_path = ""
-    if default_args.pretrained_path == "":
-        raise ValueError("pretrained_path must be set")
+    default_args.pretrained_path = (
+        "/home/yandex/MLFH2023/giladd/hiera/med-mae-best_tiny.pth"
+    )
     main(default_args)
 
 
@@ -27,10 +27,10 @@ if __name__ == "__main__":
         "method": "random",
         "metric": {"goal": "maximize", "name": "auc_score_avg"},
         "parameters": {
-            "weight_decay": {"max": 0.1, "min": 0.0},
-            "learning_rate": {"max": 5e-4, "min": 1e-5},
-            "use_augmentations": {"values": [True, False]},
-            "epochs": {"values": [10, 20, 30, 40, 50]},
+            "weight_decay": {"max": 0.0000001, "min": 0.0},
+            "learning_rate": {"max": 5e-3, "min": 1e-5},
+            "use_augmentations": {"values": [False, True]},
+            "epochs": {"values": [10, 15, 20]},
             "head_dropout": {"max": 0.5, "min": 0.0},
         },
     }
