@@ -28,7 +28,7 @@ if __name__ == "__main__":
         "metric": {"goal": "maximize", "name": "auc_score_avg"},
         "parameters": {
             "weight_decay": {"max": 0.0000001, "min": 0.0},
-            "learning_rate": {"max": 5e-3, "min": 1e-5},
+            "learning_rate": {"max": 1e-4, "min": 1e-6},
             "use_augmentations": {"values": [False, True]},
             "epochs": {"values": [10, 15, 20]},
             "head_dropout": {"max": 0.5, "min": 0.0},
