@@ -12,7 +12,7 @@ from sklearn.metrics import roc_curve, auc
 import numpy as np
 from distutils.util import strtobool
 from rand_augment import RandAugment
-from torchvision.transforms import ToTensor
+from torchvision.transforms import ToTensor, RandomRotation
 
 train_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/train/"
 test_paths = "/home/yandex/MLFH2023/giladd/hiera/datasets/datasets_classification_processed/checxpert_data/validation_2/"
@@ -50,11 +50,19 @@ def main(args):
             },
         )
 
-    train_transform = FolderDataset.prefix_transform[:-1].copy()
-    train_transform.append(RandAugment())
-    train_transform.append(ToTensor())
-    train_transform += FolderDataset.normalize_all_data
-    train_transform = torchvision.transforms.Compose(train_transform)
+    assert args.rotation_angle == 0 or args.use_augmentations is False
+    if args.use_augmentations:
+        train_transform = FolderDataset.prefix_transform[:-1].copy()
+        train_transform.append(RandAugment())
+        train_transform.append(ToTensor())
+        train_transform += FolderDataset.normalize_all_data
+        train_transform = torchvision.transforms.Compose(train_transform)
+    else:
+        train_transform = FolderDataset.prefix_transform[:-1].copy()
+        train_transform.append(RandomRotation(args.rotation_angle))
+        train_transform.append(ToTensor())
+        train_transform += FolderDataset.normalize_all_data
+        train_transform = torchvision.transforms.Compose(train_transform)
 
     if args.size == "tiny":
         model: Hiera = hiera_tiny_224(
@@ -104,7 +112,7 @@ def main(args):
         paths=train_paths,
         labels_path=labels_path,
         transform=train_transform
-        if args.use_augmentations
+        if args.use_augmentations or args.rotation_angle != 0
         else FolderDataset.default_transform,
     )
     dataloader_train = DataLoader(
@@ -218,6 +226,9 @@ def init_args():
     parser.add_argument("--weight_decay", type=float, default=0)  # 1e-8
     parser.add_argument(
         "--use_augmentations", type=lambda x: bool(strtobool(x)), default=False
+    )
+    parser.add_argument(
+        "--rotation_angle", type=float, default=0.0
     )
     parser.add_argument("--head_dropout", type=float, default=0)  # 0.5
     parser.add_argument("--size", type=str, default="tiny")  # 0.5
