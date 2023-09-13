@@ -47,6 +47,7 @@ def main(args):
                 "use_augmentations": args.use_augmentations,
                 "head_dropout": args.head_dropout,
                 "size": args.size,
+                "rotation_angle": args.rotation_angle,
             },
         )
 
