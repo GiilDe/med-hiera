@@ -33,12 +33,20 @@ def main(args):
     pretrained_hub = (not args.init_random_weights) and (
         args.pretrained_model_path == ""
     )
-    model: MaskedAutoencoderHiera = torch.hub.load(
-        "facebookresearch/hiera",
-        model="mae_hiera_small_224",
-        pretrained=pretrained_hub,
-        checkpoint="mae_in1k",
-    )
+    if args.size == "tiny":
+        model: MaskedAutoencoderHiera = torch.hub.load(
+            "facebookresearch/hiera",
+            model="mae_hiera_tiny_224",
+            pretrained=pretrained_hub,
+            checkpoint="mae_in1k",
+        )
+    else:
+        model: MaskedAutoencoderHiera = torch.hub.load(
+            "facebookresearch/hiera",
+            model="mae_hiera_small_224",
+            pretrained=pretrained_hub,
+            checkpoint="mae_in1k",
+        )
     logging.info(f"Model loaded from torch.hub: {pretrained_hub}")
     if args.pretrained_model_path != "":
         logging.info(f"Loading pretrained model from {args.pretrained_model_path}")
@@ -65,6 +73,7 @@ def main(args):
                 "use_cocktail": args.use_cocktail,
                 "init_random_weights": args.init_random_weights,
                 "use_main_data": args.use_main_data,
+                "size": args.size,
             },
         )
 
@@ -185,7 +194,7 @@ def init_args():
         "--use_main_data", type=lambda x: bool(strtobool(x)), default=True
     )
     parser.add_argument("--pretrained_model_path", type=str, default="")
-
+    parser.add_argument("--size", type=str, default="tiny")
     return parser.parse_args()
 
 
