@@ -48,6 +48,7 @@ def main(args):
                 "head_dropout": args.head_dropout,
                 "size": args.size,
                 "rotation_angle": args.rotation_angle,
+                "grad_clip_norm": args.grad_clip_norm,
             },
         )
 
@@ -154,6 +155,7 @@ def main(args):
             optimizer.zero_grad()
             loss = loss_func(predictions, y)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
             optimizer.step()
             scheduler.step()
 
@@ -228,11 +230,10 @@ def init_args():
     parser.add_argument(
         "--use_augmentations", type=lambda x: bool(strtobool(x)), default=False
     )
-    parser.add_argument(
-        "--rotation_angle", type=float, default=0.0
-    )
+    parser.add_argument("--rotation_angle", type=float, default=0.0)
     parser.add_argument("--head_dropout", type=float, default=0)  # 0.5
     parser.add_argument("--size", type=str, default="tiny")  # 0.5
+    parser.add_argument("--grad_clip_norm", type=float, default=0.0)
     return parser.parse_args()
 
 

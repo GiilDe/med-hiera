@@ -74,6 +74,7 @@ def main(args):
                 "init_random_weights": args.init_random_weights,
                 "use_main_data": args.use_main_data,
                 "size": args.size,
+                "grad_clip_norm": args.grad_clip_norm,
             },
         )
 
@@ -125,6 +126,7 @@ def main(args):
             batch = batch.to(device)
             loss = model.forward(batch, mask_ratio=args.mask_ratio)[0]
             loss /= ACCUMULATION_STEPS
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
             loss.backward()
             if args.log_wandb:
                 wandb.log(
@@ -193,6 +195,7 @@ def init_args():
     )
     parser.add_argument("--pretrained_model_path", type=str, default="")
     parser.add_argument("--size", type=str, default="tiny")
+    parser.add_argument("--grad_clip_norm", type=float, default=0.0)
     return parser.parse_args()
 
 
