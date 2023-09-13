@@ -126,7 +126,8 @@ def main(args):
             batch = batch.to(device)
             loss = model.forward(batch, mask_ratio=args.mask_ratio)[0]
             loss /= ACCUMULATION_STEPS
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
+            if args.grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
             loss.backward()
             if args.log_wandb:
                 wandb.log(

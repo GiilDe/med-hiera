@@ -155,7 +155,8 @@ def main(args):
             optimizer.zero_grad()
             loss = loss_func(predictions, y)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
+            if args.grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm)
             optimizer.step()
             scheduler.step()
 
