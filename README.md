@@ -15,6 +15,7 @@ pip install requirements.txt
 ### Data
 In order to recreate this experiment you first to build the datasets "cocktail". 
 Download the following datasets - 
+
 https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database?resource=download
 
 https://www.kaggle.com/datasets/andyczhao/covidx-cxr2
