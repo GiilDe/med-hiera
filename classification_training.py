@@ -205,8 +205,8 @@ def main(args):
             logging.info(f"Average loss: {loss_avg}")
             logging.info(f"AUC score: {auc_score_avg}")
 
-    if args.save_model:
-        torch.save(model.state_dict(), "med-mae_hiera_tiny_224_classification.pth")
+    if args.save_model_name != "":
+        torch.save(model.state_dict(), args.save_model_name)
 
 
 def init_args():
@@ -219,9 +219,7 @@ def init_args():
         default=0.0001,
         help="Learning rate for model training",
     )
-    parser.add_argument(
-        "--save_model", type=lambda x: bool(strtobool(x)), default=False
-    )
+    parser.add_argument("--save_model_name", type=str, default="")
     parser.add_argument("--log_wandb", type=lambda x: bool(strtobool(x)), default=False)
     parser.add_argument("--wandb_run_name", type=str, default="")
     parser.add_argument("--pretrained_path", type=str, default="")
