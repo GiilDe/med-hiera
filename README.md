@@ -13,7 +13,7 @@ pip install requirements.txt
 ## Using
 
 ### Data
-In order to recreate this experiment you first to build the datasets "cocktail"
+In order to recreate this experiment you first to build the datasets "cocktail". 
 
 ### MAE
 
@@ -35,3 +35,5 @@ python test_set_evaluation.py --pretrained_path "some other model name.pth"  ...
 ```
 
 Note that this repo works with wandb, a link should be outputted in the start of each run (mae/classification/test), click to view run metrics.
+
+### Other files
