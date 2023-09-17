@@ -25,7 +25,7 @@ https://www.nature.com/articles/sdata2018161
 
 https://www.med.upenn.edu/cbica/brats2020/data.html
 
-Run the file ```datasets/separate_train_test.py``` to separate the chestx-ray14 data into train and test sets.
+Run the file ```datasets/separate_train_test.py``` to separate the chestx-ray14 data into train, test, validation1 and validation2 datasets.
 ### MAE
 
 ```python
