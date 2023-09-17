@@ -14,7 +14,14 @@ pip install requirements.txt
 
 ### Data
 In order to recreate this experiment you first to build the datasets "cocktail". 
+Download the following datasets - 
+https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database?resource=download
+https://www.kaggle.com/datasets/andyczhao/covidx-cxr2
+https://paperswithcode.com/dataset/chestx-ray14
+https://www.nature.com/articles/sdata2018161
+https://www.med.upenn.edu/cbica/brats2020/data.html
 
+Run the file ```datasets/separate_train_test.py``` to separate the chestx-ray14 data into train and test sets.
 ### MAE
 
 ```python
