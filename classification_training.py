@@ -210,7 +210,12 @@ def main(args):
             torch.save(model.state_dict(), f"{args.save_model_name}_{epoch}.pth")
 
     if args.save_model_name != "":
-        torch.save(model.state_dict(), args.save_model_name)
+        torch.save(
+            model.state_dict(),
+            f"{args.save_model_name}.pth"
+            if ".pth" not in args.save_model_name
+            else args.save_model_name,
+        )
 
 
 def init_args():
