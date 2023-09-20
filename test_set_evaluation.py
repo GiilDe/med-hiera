@@ -23,6 +23,7 @@ logging.basicConfig(
 
 
 def main(args):
+    ### Load Model ###
     torch.hub.set_dir("/home/yandex/MLFH2023/giladd/hiera/")
     pretrained_hub = args.pretrained_path == ""
     if args.size == "tiny":
@@ -86,6 +87,7 @@ def main(args):
 
     sigmoid = Sigmoid()
     loss_func = BCELoss()
+    ### Evaluate Model ###
     model.eval()
     with torch.no_grad():
         loss_avg = torch.zeros(1).to(device)

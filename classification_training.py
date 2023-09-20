@@ -53,6 +53,7 @@ def main(args):
             },
         )
 
+    ### Init Preprocessing ###
     assert args.rotation_angle == 0 or args.use_augmentations is False
     if args.use_augmentations:
         train_transform = FolderDataset.prefix_transform[:-1].copy()
@@ -67,6 +68,7 @@ def main(args):
         train_transform += FolderDataset.normalize_all_data
         train_transform = torchvision.transforms.Compose(train_transform)
 
+    ### Load Model ###
     if args.size == "tiny":
         model: Hiera = hiera_tiny_224(
             pretrained=False,
@@ -146,7 +148,9 @@ def main(args):
         steps_per_epoch=num_batches,
         epochs=args.epochs,
     )
+
     for epoch in range(args.epochs):
+        ### Train Model ###
         model.train()
         for x, y in tqdm(dataloader_train):
             x = x.to(device)
@@ -164,6 +168,7 @@ def main(args):
             if args.log_wandb:
                 wandb.log({"loss": loss, "learning_rate": scheduler.get_last_lr()[0]})
 
+        ### Evaluate Model ###
         model.eval()
         with torch.no_grad():
             loss_avg = torch.zeros(1).to(device)
@@ -184,6 +189,7 @@ def main(args):
 
             loss_avg /= len(dataloader_test)
 
+            ### Compute AUC ###
             all_predictions = all_predictions.cpu()
             all_labels = all_labels.cpu()
             auc_scores = []
